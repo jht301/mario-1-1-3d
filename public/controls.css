@@ -103,12 +103,13 @@
   background: rgba(120, 200, 120, 0.45);
 }
 
-/* Hide the touch overlay on devices that clearly have a real pointer (mouse)
- * and no touch — keyboard players don't need thumb targets cluttering the view.
- * Anything with a coarse pointer (phones/tablets) keeps the controls. */
-@media (hover: hover) and (pointer: fine) {
-  #touch-controls { display: none; }
-}
+/* Visibility is decided in JS (controls.js), NOT a CSS media query: many phones
+ * and 2-in-1s report hover:hover / pointer:fine (stylus, desktop-mode, hybrid
+ * input), and an earlier `@media (hover:hover) and (pointer:fine)` rule wrongly
+ * HID the controls on real phones. controls.js feature-detects actual touch
+ * support and adds `.no-touch` to <html> only when there is genuinely no touch,
+ * so desktop-mouse users aren't shown thumb pads but every touch device is. */
+html.no-touch #touch-controls { display: none; }
 
 /* On very short landscape screens, shrink slightly so buttons don't dominate. */
 @media (max-height: 420px) {

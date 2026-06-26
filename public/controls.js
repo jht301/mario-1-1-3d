@@ -405,6 +405,24 @@ export function createInput(containerEl = document.body) {
 
     buildOverlay();
     installScrollGuards();
+    applyTouchVisibility();
+  }
+
+  // Feature-detect REAL touch support and mark <html> so controls.css can hide
+  // the overlay ONLY on genuine no-touch devices (desktop mouse). We do NOT use
+  // hover/pointer media queries — phones/2-in-1s mis-report them and that hid the
+  // controls on real phones. If touch exists at all, the overlay stays.
+  function applyTouchVisibility() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    const hasTouch =
+      ('ontouchstart' in window) ||
+      (navigator.maxTouchPoints > 0) ||
+      (navigator.msMaxTouchPoints > 0) ||
+      (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
+    const root = document.documentElement;
+    if (root && root.classList) {
+      root.classList.toggle('no-touch', !hasTouch);
+    }
   }
 
   /**

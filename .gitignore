@@ -1,0 +1,6 @@
+node_modules/
+scripts/shot-*.png
+scripts/smoke.png
+scripts/playthrough.png
+*.glb.disabled
+.mcp.json

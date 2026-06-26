@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    Mobile-first viewport: lock zoom + scaling so the game canvas owns the whole
+    screen and pinch/double-tap gestures never interfere with the touch controls.
+    viewport-fit=cover lets the canvas extend under notches/safe-areas; the touch
+    buttons are inset via env(safe-area-*) in controls.css.
+  -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#5c94fc" />
+  <title>Super Mario Bros — World 1-1 (3D)</title>
+
+  <!-- Page shell + on-screen touch control styling. -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="controls.css" />
+
+  <!--
+    Import map: pin Three.js 0.160.0 from the unpkg CDN. This is what makes the
+    project a pure static site (no bundler / no npm). Modules import 'three' and
+    'three/addons/...'; GLTFLoader lives under examples/jsm of the SAME version.
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <!--
+    #game-root hosts the WebGL canvas (game.js appends renderer.domElement here)
+    and is the pointer-event surface passed to createInput(). Everything else
+    (HUD, controls, overlays) is absolutely positioned on top of it.
+  -->
+  <div id="game-root"></div>
+
+  <!-- ===================== HUD ===================== -->
+  <!-- Static heads-up display. game.js updates #coin-count; the rest is fixed. -->
+  <div id="hud" aria-hidden="true">
+    <div class="hud-group">
+      <span class="hud-label">MARIO</span>
+      <span class="hud-value" id="coin-box">
+        <span class="coin-pip">●</span>
+        <span id="coin-count">00</span>
+      </span>
+    </div>
+    <div class="hud-group hud-world">
+      <span class="hud-label">WORLD</span>
+      <span class="hud-value" id="world-name">1-1</span>
+    </div>
+    <div class="hud-group hud-time">
+      <span class="hud-label">TIME</span>
+      <span class="hud-value" id="time-value">--</span>
+    </div>
+  </div>
+
+  <!-- ===================== WIN / LOSE BANNER ===================== -->
+  <!--
+    Hidden by default. game.js toggles the [hidden] attribute and swaps the
+    data-state attribute ("win" | "lose") to recolor / change the message.
+  -->
+  <div id="banner" data-state="win" hidden>
+    <div id="banner-text">YOU WIN!</div>
+    <div id="banner-sub">Tap to play again</div>
+  </div>
+
+  <!-- ===================== TOUCH CONTROLS OVERLAY ===================== -->
+  <!--
+    The on-screen controls (#touch-controls with #btn-left / #btn-right /
+    #btn-jump) are CREATED AND OWNED BY controls.js (its mount() builds the
+    overlay and styles it via controls.css's .tc-* classes). We intentionally do
+    NOT hand-author the overlay here to avoid a duplicate #touch-controls. The
+    page just guarantees controls.css is loaded (see <head>) so the buttons are
+    styled the moment controls.js inserts them. createInput() is called with
+    document.body, under which the overlay is mounted.
+  -->
+
+  <!-- ===================== TAP TO START OVERLAY ===================== -->
+  <!--
+    Full-screen gate shown on load. game.js hides it (sets [hidden]) on the first
+    interaction. A user gesture is required to unlock audio + fullscreen-ish
+    behavior on mobile, so the game waits for this tap before starting the loop.
+  -->
+  <div id="start-overlay">
+    <div class="start-card">
+      <h1 class="start-title">SUPER MARIO BROS</h1>
+      <p class="start-world">WORLD 1-1</p>
+      <p class="start-cta">TAP TO START</p>
+      <p class="start-hint">Arrows / A&middot;D to move &nbsp;&bull;&nbsp; Space / &uarr; to jump</p>
+    </div>
+  </div>
+
+  <!-- Entry point. game.js imports siblings (assets/physics/controls/level) and
+       exports startGame(); we boot it here once the module is parsed. -->
+  <script type="module">
+    import { startGame } from './game.js';
+    startGame().catch((err) => {
+      // Surface boot failures on-screen so a blank canvas is never a mystery.
+      console.error('[mario-1-1-3d] startGame failed:', err);
+      const ov = document.getElementById('start-overlay');
+      if (ov) {
+        ov.hidden = false;
+        const cta = ov.querySelector('.start-cta');
+        if (cta) cta.textContent = 'FAILED TO LOAD — see console';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+/* =============================================================================
+ * controls.css — on-screen touch controls overlay for Mario 1-1 3D
+ * =============================================================================
+ *
+ * Layout:
+ *   - A full-viewport, pointer-events:none overlay (#touch-controls) so it never
+ *     blocks the WebGL canvas; only the individual buttons capture pointers.
+ *   - Left + Right buttons cluster in the BOTTOM-LEFT.
+ *   - One big Jump button in the BOTTOM-RIGHT.
+ *   - Large, semi-transparent thumb targets sized for phones.
+ *
+ * The overlay is created/owned by controls.js (mount()), but the IDs match the
+ * spec (#btn-left / #btn-right / #btn-jump) so a hand-authored index.html can
+ * also provide them.
+ *
+ * Touch scrolling / zooming / text-selection are all suppressed on the controls
+ * (and the page sets touch-action:none on the canvas in JS) so a hold-left +
+ * tap-jump gesture never scrolls the page.
+ * ============================================================================ */
+
+/* The overlay spans the screen but is transparent to pointer events; only its
+ * children (the buttons) are interactive. This lets the 3D canvas underneath
+ * still receive clicks where there is no button. */
+#touch-controls {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;          /* overlay itself is click-through */
+  /* Respect device safe-areas (notches / home indicators) on mobile. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* No accidental text selection while mashing buttons. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bottom-left cluster: left + right d-pad style buttons. */
+#touch-controls .tc-cluster-left {
+  position: absolute;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 14px;
+}
+
+/* Bottom-right: the big jump button. */
+#touch-controls .tc-cluster-right {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* Shared button look: large, round, translucent, with a bold glyph. */
+#touch-controls .tc-btn {
+  pointer-events: auto;          /* re-enable pointers on the actual buttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  /* Critical for multi-touch + no scroll: the browser must not treat touches
+   * on the button as pan/zoom gestures. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.08s ease;
+  /* Subtle depth so buttons read against bright sky / level. */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* The jump button is bigger — it's the primary action. */
+#touch-controls #btn-jump {
+  width: 110px;
+  height: 110px;
+  font-size: 26px;
+  letter-spacing: 0.5px;
+  background: rgba(120, 200, 120, 0.22);
+  border-color: rgba(180, 255, 180, 0.6);
+}
+
+/* Pressed feedback. controls.js toggles .tc-pressed on pointer down/up. */
+#touch-controls .tc-btn.tc-pressed {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.4);
+}
+#touch-controls #btn-jump.tc-pressed {
+  background: rgba(120, 200, 120, 0.45);
+}
+
+/* Hide the touch overlay on devices that clearly have a real pointer (mouse)
+ * and no touch — keyboard players don't need thumb targets cluttering the view.
+ * Anything with a coarse pointer (phones/tablets) keeps the controls. */
+@media (hover: hover) and (pointer: fine) {
+  #touch-controls { display: none; }
+}
+
+/* On very short landscape screens, shrink slightly so buttons don't dominate. */
+@media (max-height: 420px) {
+  #touch-controls .tc-btn { width: 68px; height: 68px; font-size: 30px; }
+  #touch-controls #btn-jump { width: 90px; height: 90px; font-size: 22px; }
+}

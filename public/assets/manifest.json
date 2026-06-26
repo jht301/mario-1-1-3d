@@ -1,0 +1,20 @@
+{
+  "_note": "Canonical asset contract. The engine references these keys; GLBs land at public/assets/<file>. Until a GLB exists, the loader falls back to a colored primitive of the given size so the game is playable before/without assets.",
+  "tileSize": 1,
+  "assets": {
+    "ground":   { "file": "ground.glb",   "fallbackColor": "#c8702a", "size": [1,1,1], "solid": true },
+    "brick":    { "file": "brick.glb",    "fallbackColor": "#b5651d", "size": [1,1,1], "solid": true },
+    "question": { "file": "question.glb", "fallbackColor": "#f2b21a", "size": [1,1,1], "solid": true },
+    "used":     { "file": "used.glb",     "fallbackColor": "#9a6b2f", "size": [1,1,1], "solid": true },
+    "pipe":     { "file": "pipe.glb",     "fallbackColor": "#2ea24a", "size": [2,1,2], "solid": true },
+    "goomba":   { "file": "goomba.glb",   "fallbackColor": "#6b3f1d", "size": [0.8,0.8,0.8], "solid": false },
+    "coin":     { "file": "coin.glb",     "fallbackColor": "#ffd83d", "size": [0.5,0.7,0.1], "solid": false },
+    "flagpole": { "file": "flagpole.glb", "fallbackColor": "#cfcfcf", "size": [0.2,10,0.2], "solid": false },
+    "flag":     { "file": "flag.glb",     "fallbackColor": "#2ea24a", "size": [1,0.7,0.1], "solid": false },
+    "castle":   { "file": "castle.glb",   "fallbackColor": "#c44a3a", "size": [5,5,3], "solid": false },
+    "cloud":    { "file": "cloud.glb",    "fallbackColor": "#ffffff", "size": [2,1,0.5], "solid": false },
+    "bush":     { "file": "bush.glb",     "fallbackColor": "#3fae5a", "size": [2,1,1], "solid": false },
+    "hill":     { "file": "hill.glb",     "fallbackColor": "#3fae5a", "size": [4,2,1], "solid": false },
+    "mario":    { "file": "mario.glb",    "fallbackColor": "#e23b2e", "size": [0.8,1.4,0.8], "solid": false }
+  }
+}

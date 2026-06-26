@@ -1,0 +1,223 @@
+/* =============================================================================
+   style.css — page shell, HUD, win/lose banner, "tap to start" overlay.
+   Touch-button styling lives in controls.css. Mobile-first, no scroll, the
+   WebGL canvas fills the entire viewport behind everything.
+   ============================================================================= */
+
+/* ---- reset + full-viewport, no-scroll page -------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;                 /* never scroll the page itself */
+  background: #5c94fc;              /* SMB sky blue (matches scene bg) */
+  /* Kill mobile tap highlight / long-press callouts / text selection so the
+     touch controls feel like a game, not a web page. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Prevent the browser from hijacking touch gestures (scroll/zoom). The
+     controls also call preventDefault, but this is the belt-and-suspenders. */
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+body {
+  position: fixed;                  /* iOS Safari: stop rubber-band scrolling */
+  inset: 0;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  color: #fff;
+}
+
+/* ---- WebGL host: the canvas fills this; everything else floats above ------ */
+#game-root {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+#game-root canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* =============================================================================
+   HUD — pixel-y top bar: coins, WORLD 1-1, TIME.
+   ============================================================================= */
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+           10px max(14px, env(safe-area-inset-left));
+  font-weight: 700;
+  letter-spacing: 1px;
+  /* monospace digits keep the counters from jittering as values change */
+  font-variant-numeric: tabular-nums;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+  pointer-events: none;            /* HUD never eats taps meant for the game */
+}
+
+.hud-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.05;
+}
+
+.hud-world {
+  align-items: center;
+}
+
+.hud-time {
+  align-items: flex-end;
+}
+
+.hud-label {
+  font-size: clamp(10px, 3.2vw, 15px);
+  opacity: 0.92;
+}
+
+.hud-value {
+  font-size: clamp(14px, 4.6vw, 22px);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.coin-pip {
+  color: #ffd83d;                  /* coin gold */
+  text-shadow: 1px 1px 0 #a9791b, 2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+
+/* =============================================================================
+   WIN / LOSE BANNER — centered card; game.js toggles [hidden] + data-state.
+   ============================================================================= */
+#banner {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  /* allow a tap on the banner to restart (game.js listens on it) */
+  cursor: pointer;
+}
+
+#banner[hidden] {
+  display: none;                   /* ensure [hidden] truly hides (flex would override) */
+}
+
+#banner-text {
+  font-size: clamp(34px, 12vw, 84px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+  animation: banner-pop 320ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+#banner-sub {
+  font-size: clamp(13px, 4vw, 20px);
+  opacity: 0.9;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* Win = bright gold/green vibe; Lose = red. Driven by data-state on #banner. */
+#banner[data-state="win"]  #banner-text { color: #ffe34d; }
+#banner[data-state="lose"] #banner-text { color: #ff5a47; }
+
+@keyframes banner-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* =============================================================================
+   TAP TO START OVERLAY — full-screen gate, hidden by game.js on first input.
+   ============================================================================= */
+#start-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  background:
+    radial-gradient(120% 120% at 50% 30%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)),
+    #5c94fc;
+  cursor: pointer;
+}
+
+#start-overlay[hidden] {
+  display: none;
+}
+
+.start-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.start-title {
+  font-size: clamp(28px, 9vw, 64px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 4px 4px 0 #b5651d, 6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+.start-world {
+  font-size: clamp(16px, 5vw, 26px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #ffe34d;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+
+.start-cta {
+  margin-top: 10px;
+  font-size: clamp(18px, 6vw, 32px);
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+  animation: blink 1.05s steps(1, end) infinite;
+}
+
+.start-hint {
+  margin-top: 6px;
+  font-size: clamp(11px, 3.4vw, 16px);
+  opacity: 0.85;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+/* On coarse-pointer (touch) devices the keyboard hint is irrelevant — hide it. */
+@media (pointer: coarse) {
+  .start-hint { display: none; }
+}
